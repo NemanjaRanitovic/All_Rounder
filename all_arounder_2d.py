@@ -72,3 +72,5 @@ while running:
             pg.quit()
     
     pg.display.update()
+
+    #Komentar
