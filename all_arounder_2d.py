@@ -29,8 +29,7 @@ block_top = pg.Rect(middle_blocks_left_point, 0, 250, 50)
 block_left = pg.Rect(0, sides_blocks_top_point, 50, 250)
 block_right = pg.Rect(screen_width-50, sides_blocks_top_point, 50, 250)
 
-# _____Ball_________
-# Ball diameter 
+# Ball radius -> counting from center outwards
 radius = 25
 
 # Initial ball coordinates
@@ -42,10 +41,10 @@ vx = 150
 vy = 100
 
 # Ball acceleration 
-g = 1 # pixels / second
+g = 1 
 
 # Ball coefficient of restitution (bounciness)
-e = 1 # MENJAJ PARAMETAR DA VIDIS KAKO UTICE NA LOPTICU  !!!
+e = 1
 
 # Ball mass
 mass = 1 
@@ -58,13 +57,12 @@ F_rolling_resistance = mu * mass * g
 
 # Set the ball's acceleration (in meters/second^2)
 ax = F_rolling_resistance / mass
-ay = ax #-g
+ay = ax 
 
 # Game loop 
 running = True
 while running: 
 
-    #dt = clock.tick(60)
     dt = 0.01
     screen.fill(background_color)
 
@@ -82,43 +80,39 @@ while running:
     vx = vx + (dt/6)*(ax1 + 2*ax2 + 2*ax3 + ax4)
     vy = vy + (dt/6)*(ay1 + 2*ay2 + 2*ay3 + ay4)
 
-
-#block_bottom = pg.Rect(middle_blocks_left_point, screen_height-50, 250, 50)
-#block_top = pg.Rect(middle_blocks_left_point, 0, 250, 50)
-#block_left = pg.Rect(0, sides_blocks_top_point, 50, 250)
-#block_right = pg.Rect(screen_width-50, sides_blocks_top_point, 50, 250)
-
-    # FIRST BLOCK (top)
-    
+    # TOP BLOCK
     if((x + radius >= 0 + middle_blocks_left_point and x + radius <= 0 + middle_blocks_left_point + 250) and (y - radius <= 50)):
         vx = e*vx
         vy = -e*vy
-    # SECOND BLOCK (down)
+
+    # DOWN BLOCK
     if((x + radius >= 0 + middle_blocks_left_point and x + radius <= 0 + middle_blocks_left_point + 250) and (y + radius >= screen_height - 50)):
         vx = e*vx
         vy = -e*vy
-    # THIRD BLOCK (left)
+
+    # LEFT BLOCK
     if((x - radius <= 50) and (y + radius >= 0 + sides_blocks_top_point and y + radius <= 0 + sides_blocks_top_point+250)): 
         vx = -e*vx
         vy = e*vy
-    # FOURTH BLOCK (right)
+
+    # RIGHT BLOCK
     if ((x + radius >= screen_width-50 ) and (y + radius >= 0 + sides_blocks_top_point and y + radius <= 0 + sides_blocks_top_point+250)):
         vx = -e*vx
         vy = e*vy
     
-    #Bottom border detection
+    # Bottom border detection
     if(y + radius >= screen_height):  
         pg.quit()
 
-    #Top border detection
+    # Top border detection
     if(y - radius <= 0):  
         pg.quit()
 
-    #Left border detection
+    # Left border detection
     if(x - radius <= 0):  
         pg.quit()
     
-    #Right border detection
+    # Right border detection
     if(x + radius >= screen_width):  
         pg.quit()
 
@@ -127,6 +121,7 @@ while running:
     pg.draw.rect(screen, block_color, block_top, 0, 30)
     pg.draw.rect(screen, block_color, block_left, 0, 30)
     pg.draw.rect(screen, block_color, block_right, 0, 30)
+
     # Drawing ball
     pg.draw.circle(screen, ball_color, (int(x), int(y)), radius)
 
@@ -162,5 +157,3 @@ while running:
             pg.quit()
     
     pg.display.update()
-
-    #Komentar
