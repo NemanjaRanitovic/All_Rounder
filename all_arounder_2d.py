@@ -1,6 +1,8 @@
 import pygame as pg 
 import numpy as np 
 from pygame.locals import *
+import math
+import funkcije as fu
 
 # Initialize the game 
 pg.init()
@@ -35,10 +37,12 @@ radius = 25
 # Initial ball coordinates
 x = screen_width/2
 y = screen_height/2
+angle = 0
 
 # Inital ball velocity
 vx = 150
 vy = 100
+omega = math.pi / 2
 
 # Ball acceleration 
 g = 1 
@@ -50,14 +54,27 @@ e = 1
 mass = 1 
 
 # Coeff of friction 
-mu = 0.1
+mu = 0.01
 
 # Set the ball's rolling resistance force (in Newtons)
 F_rolling_resistance = mu * mass * g  
 
+#Ball's moment of intertia
+I = (2/5) * mass * radius**2
+
+torque = 100
+
+#Angular acceleration 
+alpha = torque / I 
+
+
 # Set the ball's acceleration (in meters/second^2)
 ax = F_rolling_resistance / mass
 ay = ax 
+
+slika = pg.image.load('line.png')
+slika = pg.transform.scale(slika,(50,50))
+slika = slika.convert_alpha()
 
 # Game loop 
 running = True
@@ -66,55 +83,16 @@ while running:
     dt = 0.01
     screen.fill(background_color)
 
-    # RK4 Method for ball movement
-    x1, y1, vx1, vy1 = x, y, vx, vy
-    ax1, ay1 = ax, ay
-    x2, y2, vx2, vy2 = x + 0.5*vx1*dt, y + 0.5*vy1*dt, vx + 0.5*ax1*dt, vy + 0.5*ay1*dt
-    ax2, ay2 = ax, ay
-    x3, y3, vx3, vy3 = x + 0.5*vx2*dt, y + 0.5*vy2*dt, vx + 0.5*ax2*dt, vy + 0.5*ay2*dt
-    ax3, ay3 = ax, ay
-    x4, y4, vx4, vy4 = x + vx3*dt, y + vy3*dt, vx + ax3*dt, vy + ay3*dt
-    ax4, ay4 = ax, ay
-    x = x + (dt/6)*(vx1 + 2*vx2 + 2*vx3 + vx4)
-    y = y + (dt/6)*(vy1 + 2*vy2 + 2*vy3 + vy4)
-    vx = vx + (dt/6)*(ax1 + 2*ax2 + 2*ax3 + ax4)
-    vy = vy + (dt/6)*(ay1 + 2*ay2 + 2*ay3 + ay4)
+    #Rotation
+    angle += omega * dt
+    omega += alpha *dt
 
-    # TOP BLOCK
-    if((x + radius >= 0 + middle_blocks_left_point and x + radius <= 0 + middle_blocks_left_point + 250) and (y - radius <= 50)):
-        vx = e*vx
-        vy = -e*vy
 
-    # DOWN BLOCK
-    if((x + radius >= 0 + middle_blocks_left_point and x + radius <= 0 + middle_blocks_left_point + 250) and (y + radius >= screen_height - 50)):
-        vx = e*vx
-        vy = -e*vy
-
-    # LEFT BLOCK
-    if((x - radius <= 50) and (y + radius >= 0 + sides_blocks_top_point and y + radius <= 0 + sides_blocks_top_point+250)): 
-        vx = -e*vx
-        vy = e*vy
-
-    # RIGHT BLOCK
-    if ((x + radius >= screen_width-50 ) and (y + radius >= 0 + sides_blocks_top_point and y + radius <= 0 + sides_blocks_top_point+250)):
-        vx = -e*vx
-        vy = e*vy
+    x,y,vx,vy,ax,ay = fu.RK4_Movement(x,y,vx,vy,ax,ay,dt)
     
-    # Bottom border detection
-    if(y + radius >= screen_height):  
-        pg.quit()
+    vx,vy = fu.colision_bricks(x,y,radius,screen_width,screen_height,middle_blocks_left_point,sides_blocks_top_point,e,vx,vy)
+    fu.colision_edge(x,y,radius,screen_height,screen_width)
 
-    # Top border detection
-    if(y - radius <= 0):  
-        pg.quit()
-
-    # Left border detection
-    if(x - radius <= 0):  
-        pg.quit()
-    
-    # Right border detection
-    if(x + radius >= screen_width):  
-        pg.quit()
 
     # Drawing blocks
     pg.draw.rect(screen, block_color, block_bottom, 0, 30)
@@ -122,9 +100,10 @@ while running:
     pg.draw.rect(screen, block_color, block_left, 0, 30)
     pg.draw.rect(screen, block_color, block_right, 0, 30)
 
-    # Drawing ball
-    pg.draw.circle(screen, ball_color, (int(x), int(y)), radius)
-
+    # Drawing ball kada ovo zakomentarisem vidi se polygon koji se rotira cilj je napraviti lopticu
+    loptica = pg.draw.circle(screen, ball_color, (int(x), int(y)), radius)
+    screen.blit(slika,loptica)
+    
     # Block movement
     keys = pg.key.get_pressed()
     block_vertical_movement_speed = 250
