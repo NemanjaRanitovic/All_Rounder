@@ -5,6 +5,7 @@ def colision_bricks(x,y,radius,screen_width,screen_height,middle_blocks_left_poi
     if((x + radius >= 0 + middle_blocks_left_point and x + radius <= 0 + middle_blocks_left_point + 250) and (y - radius <= 50)):
         vx = e*vx
         vy = -e*vy
+
         
     # DOWN BLOCK
     if((x + radius >= 0 + middle_blocks_left_point and x + radius <= 0 + middle_blocks_left_point + 250) and (y + radius >= screen_height - 50)):
@@ -20,6 +21,7 @@ def colision_bricks(x,y,radius,screen_width,screen_height,middle_blocks_left_poi
     if ((x + radius >= screen_width-50 ) and (y + radius >= 0 + sides_blocks_top_point and y + radius <= 0 + sides_blocks_top_point+250)):
         vx = -e*vx
         vy = e*vy
+    
     return vx,vy
          
 def colision_edge(x,y,radius,screen_height,screen_width):

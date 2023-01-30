@@ -3,40 +3,28 @@ import numpy as np
 from pygame.locals import *
 import math
 import funkcije as fu
+import params as par
 
 # Initialize the game 
 pg.init()
 
-# Initialize the screen 
-screen_width = 1920
-screen_height = 1080 
-screen = pg.display.set_mode((screen_width, screen_height))
+screen = pg.display.set_mode((par.screen_width, par.screen_height))
 pg.display.set_caption('all-arounder')
 
 # Initialize the clock 
 clock = pg.time.Clock()
 
-# Initialize the colors 
-background_color = (20, 20, 20)
-ball_color = (255, 0, 0)
-block_color = (77, 255, 0)
-text_color = (38, 38, 38)
-
-# Blocks (left, top, width, height) - on a 1920x1080 plane
-middle_blocks_left_point = screen_width/2 - 250/2
-sides_blocks_top_point = screen_height/2 - 250/2
-
-block_bottom = pg.Rect(middle_blocks_left_point, screen_height-50, 250, 50)
-block_top = pg.Rect(middle_blocks_left_point, 0, 250, 50)
-block_left = pg.Rect(0, sides_blocks_top_point, 50, 250)
-block_right = pg.Rect(screen_width-50, sides_blocks_top_point, 50, 250)
+block_bottom = pg.Rect(par.middle_blocks_left_point, par.screen_height-50, 250, 50)
+block_top = pg.Rect(par.middle_blocks_left_point, 0, 250, 50)
+block_left = pg.Rect(0, par.sides_blocks_top_point, 50, 250)
+block_right = pg.Rect(par.screen_width-50, par.sides_blocks_top_point, 50, 250)
 
 # Ball radius -> counting from center outwards
 radius = 25
 
 # Initial ball coordinates
-x = screen_width/2
-y = screen_height/2
+x = par.screen_width/2
+y = par.screen_height/2
 angle = 0
 
 # Inital ball velocity
@@ -67,42 +55,47 @@ torque = 100
 #Angular acceleration 
 alpha = torque / I 
 
-
 # Set the ball's acceleration (in meters/second^2)
 ax = F_rolling_resistance / mass
-ay = ax 
+ay = ax
 
 slika = pg.image.load('line.png')
 slika = pg.transform.scale(slika,(50,50))
 slika = slika.convert_alpha()
 
+def blitRotateCenter(screen,image,position,angle):
+    rotated_image = pg.transform.rotate(image,angle)
+    new_rect = rotated_image.get_rect(center = position)
+    screen.blit(rotated_image,new_rect)
+
+hit_counter = 0
 # Game loop 
 running = True
 while running: 
 
     dt = 0.01
-    screen.fill(background_color)
+    screen.fill(par.background_color)
 
     #Rotation
     angle += omega * dt
     omega += alpha *dt
 
 
-    x,y,vx,vy,ax,ay = fu.RK4_Movement(x,y,vx,vy,ax,ay,dt)
-    
-    vx,vy = fu.colision_bricks(x,y,radius,screen_width,screen_height,middle_blocks_left_point,sides_blocks_top_point,e,vx,vy)
-    fu.colision_edge(x,y,radius,screen_height,screen_width)
 
+    x,y,vx,vy,ax,ay = fu.RK4_Movement(x,y,vx,vy,ax,ay,dt)
+    vx,vy = fu.colision_bricks(x,y,radius,par.screen_width,par.screen_height,par.middle_blocks_left_point,par.sides_blocks_top_point,e,vx,vy)
+    fu.colision_edge(x,y,radius,par.screen_height,par.screen_width)
+
+    
 
     # Drawing blocks
-    pg.draw.rect(screen, block_color, block_bottom, 0, 30)
-    pg.draw.rect(screen, block_color, block_top, 0, 30)
-    pg.draw.rect(screen, block_color, block_left, 0, 30)
-    pg.draw.rect(screen, block_color, block_right, 0, 30)
+    pg.draw.rect(screen, par.block_color, block_bottom, 0, 30)
+    pg.draw.rect(screen, par.block_color, block_top, 0, 30)
+    pg.draw.rect(screen, par.block_color, block_left, 0, 30)
+    pg.draw.rect(screen, par.block_color, block_right, 0, 30)
 
-    # Drawing ball kada ovo zakomentarisem vidi se polygon koji se rotira cilj je napraviti lopticu
-    loptica = pg.draw.circle(screen, ball_color, (int(x), int(y)), radius)
-    screen.blit(slika,loptica)
+    loptica = pg.draw.circle(screen, par.ball_color, (int(x), int(y)), radius)
+    blitRotateCenter(screen,slika,(x,y),-angle/dt)
     
     # Block movement
     keys = pg.key.get_pressed()
@@ -110,25 +103,25 @@ while running:
     block_horiZontal_movement_speed = 250 * 1920/1080
 
     if keys[pg.K_LEFT]:
-        if(middle_blocks_left_point > 50):
-            middle_blocks_left_point -= block_horiZontal_movement_speed * dt
+        if( par.middle_blocks_left_point > 50):
+            par.middle_blocks_left_point -= block_horiZontal_movement_speed * dt
 
     if keys[pg.K_RIGHT]:
-        if(middle_blocks_left_point < screen.get_width()-300):
-            middle_blocks_left_point += block_horiZontal_movement_speed * dt 
+        if( par.middle_blocks_left_point < screen.get_width()-300):
+            par.middle_blocks_left_point += block_horiZontal_movement_speed * dt 
 
     if keys[pg.K_UP]:
-        if(sides_blocks_top_point > 50):
-            sides_blocks_top_point -= block_vertical_movement_speed * dt
+        if( par.sides_blocks_top_point > 50):
+            par.sides_blocks_top_point -= block_vertical_movement_speed * dt
 
     if keys[pg.K_DOWN]:
-        if(sides_blocks_top_point < screen.get_height()-300):
-            sides_blocks_top_point += block_vertical_movement_speed * dt
+        if( par.sides_blocks_top_point < screen.get_height()-300):
+            par.sides_blocks_top_point += block_vertical_movement_speed * dt
 
-    block_bottom[0] = middle_blocks_left_point
-    block_top[0] = middle_blocks_left_point
-    block_left[1] = sides_blocks_top_point
-    block_right[1] = sides_blocks_top_point
+    block_bottom[0] = par.middle_blocks_left_point
+    block_top[0] =    par.middle_blocks_left_point
+    block_left[1] =   par.sides_blocks_top_point
+    block_right[1] =  par.sides_blocks_top_point
 
     for event in pg.event.get(): 
         if event.type == pg.QUIT: 
