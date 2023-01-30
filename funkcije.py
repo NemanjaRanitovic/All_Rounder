@@ -1,28 +1,36 @@
 import pygame as pg
+import random
+import numpy as np
 
-def colision_bricks(x,y,radius,screen_width,screen_height,middle_blocks_left_point,sides_blocks_top_point,e,vx,vy):
+change_dir = 450
+
+def colision_bricks(x,y,radius,screen_width,screen_height,middle_blocks_left_point,sides_blocks_top_point,e,vx,vy,brojac):
  # TOP BLOCK
     if((x + radius >= 0 + middle_blocks_left_point and x + radius <= 0 + middle_blocks_left_point + 250) and (y - radius <= 50)):
         vx = e*vx
         vy = -e*vy
+        brojac+=1
 
         
     # DOWN BLOCK
     if((x + radius >= 0 + middle_blocks_left_point and x + radius <= 0 + middle_blocks_left_point + 250) and (y + radius >= screen_height - 50)):
         vx = e*vx
         vy = -e*vy
+        brojac+=1
 
     # LEFT BLOCK
     if((x - radius <= 50) and (y + radius >= 0 + sides_blocks_top_point and y + radius <= 0 + sides_blocks_top_point+250)): 
         vx = -e*vx
-        vy = e*vy  
+        vy = e*vy
+        brojac+=1 
 
     # RIGHT BLOCK
     if ((x + radius >= screen_width-50 ) and (y + radius >= 0 + sides_blocks_top_point and y + radius <= 0 + sides_blocks_top_point+250)):
         vx = -e*vx
         vy = e*vy
+        brojac+=1
     
-    return vx,vy
+    return vx,vy,brojac
          
 def colision_edge(x,y,radius,screen_height,screen_width):
     # Bottom border detection
@@ -57,3 +65,31 @@ def RK4_Movement(x,y,vx,vy,ax,ay,dt):
     vy = vy + (dt/6)*(ay1 + 2*ay2 + 2*ay3 + ay4)
 
     return x,y,vx,vy,ax,ay
+
+def blitRotateCenter(screen,image,position,angle):
+
+    rotated_image = pg.transform.rotate(image,angle)
+    new_rect = rotated_image.get_rect(center = position)
+    screen.blit(rotated_image,new_rect)
+
+
+
+def generateTriangle(positions):
+    #tacka 1 (x,y)
+    positions[0][0] = random.randint(700,1220)
+    positions[0][1] = random.randint(200,800)
+
+    #tacka 2 (x,y)
+    positions[1][0] = random.randint(-change_dir,change_dir)+positions[0][0]
+    positions[1][1] = random.randint(-change_dir/3,change_dir/3)+positions[0][1]
+
+    #tacka 3(x,y)
+    positions[2][0] = random.randint(-change_dir/3,change_dir/3)+positions[0][0]
+    positions[2][1] = random.randint(-change_dir/3,change_dir/3)+positions[0][1]
+    return positions
+
+
+
+    #prva tacka random bilo gde
+    #druga tacka = vrednost prve tacke + random(50,10)
+    #treca tacka isto

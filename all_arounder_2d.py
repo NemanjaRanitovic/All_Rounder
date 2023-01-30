@@ -59,34 +59,27 @@ alpha = torque / I
 ax = F_rolling_resistance / mass
 ay = ax
 
-slika = pg.image.load('line.png')
-slika = pg.transform.scale(slika,(50,50))
-slika = slika.convert_alpha()
-
-def blitRotateCenter(screen,image,position,angle):
-    rotated_image = pg.transform.rotate(image,angle)
-    new_rect = rotated_image.get_rect(center = position)
-    screen.blit(rotated_image,new_rect)
+line_image = pg.image.load('line.png')
+line_image = pg.transform.scale(line_image,(50,50))
+line_image = line_image.convert_alpha()
 
 hit_counter = 0
+flip = 1
+positions = [[0,0],[0,0],[0,0]]
 # Game loop 
 running = True
 while running: 
 
-    dt = 0.01
+    dt = 0.005
     screen.fill(par.background_color)
 
     #Rotation
     angle += omega * dt
     omega += alpha *dt
 
-
-
     x,y,vx,vy,ax,ay = fu.RK4_Movement(x,y,vx,vy,ax,ay,dt)
-    vx,vy = fu.colision_bricks(x,y,radius,par.screen_width,par.screen_height,par.middle_blocks_left_point,par.sides_blocks_top_point,e,vx,vy)
+    vx,vy,hit_counter = fu.colision_bricks(x,y,radius,par.screen_width,par.screen_height,par.middle_blocks_left_point,par.sides_blocks_top_point,e,vx,vy,hit_counter)
     fu.colision_edge(x,y,radius,par.screen_height,par.screen_width)
-
-    
 
     # Drawing blocks
     pg.draw.rect(screen, par.block_color, block_bottom, 0, 30)
@@ -95,8 +88,16 @@ while running:
     pg.draw.rect(screen, par.block_color, block_right, 0, 30)
 
     loptica = pg.draw.circle(screen, par.ball_color, (int(x), int(y)), radius)
-    blitRotateCenter(screen,slika,(x,y),-angle/dt)
+    fu.blitRotateCenter(screen,line_image,(x,y),-angle/dt)
+
     
+    if(hit_counter == 6):
+        positions = fu.generateTriangle(positions)
+        hit_counter = 0
+
+    
+    pg.draw.polygon(screen,par.block_color,positions)
+
     # Block movement
     keys = pg.key.get_pressed()
     block_vertical_movement_speed = 250
