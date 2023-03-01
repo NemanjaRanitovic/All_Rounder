@@ -47,10 +47,10 @@ def start_menu():
 icon = pygame.image.load('Images/icon.png')
 pygame.display.set_icon(icon)
 # Adding the triangle
-#trougao = space.add_triangle([960,540],[[-25,-25],[25,-25],[12.5,12.5]])
+trougao = space.add_triangle([960,540],[[-25,-25],[25,-25],[12.5,12.5]])
 
 # Adding the ball
-lopta = space.add_ball([960,540])
+#lopta = space.add_ball([960,540])
 
 # Adding the blocks 
 block_left =  space.add_block([25,540],[[-25,-125],[25,-125],[25,125],[-25,125]])
@@ -207,19 +207,19 @@ while running:
 
 
     # Movement through RK4 method 
-    #trougao.triangle_RK4_movement()
-    lopta.ball_RK4_movement()
+    trougao.triangle_RK4_movement()
+    #lopta.ball_RK4_movement()
                  
     # Edge detection -> Game quit
-    '''if trougao.is_colliding_edge():
+    if trougao.is_colliding_edge():
         pygame.mixer.Sound.play(miss_sound)
         time.sleep(0.5) 
-        pygame.quit()'''
+        pygame.quit()
 
-    if lopta.is_colliding_edge():
+    '''if lopta.is_colliding_edge():
         pygame.mixer.Sound.play(miss_sound)
         time.sleep(0.5)
-        pygame.quit()
+        pygame.quit()'''
         
     hit_counter,text_counter = space.update_variables(hit_counter,text_counter,hit_sound)
     space.draw(surface,block_image_horizontal,block_image_vertical,config.error)
